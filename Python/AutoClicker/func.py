@@ -18,8 +18,8 @@ class AutoClickError(Exception):
     raise AutoClickError('some error')
     """
 
-    def __init__(self, arg: str):
-        self.str = arg
+    def __init__(self, detail: str):
+        self.str = detail
 
 
 class AutoClick(object):
@@ -40,7 +40,7 @@ class AutoClick(object):
         self.img_y = 0
         self.img_flag = False
         self.admin = False
-        self.handle = -1
+        self.handle = None
         self.class_str = ''
         self.title_str = ''
         self.left = 0
