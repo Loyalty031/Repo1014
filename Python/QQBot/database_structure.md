@@ -1,0 +1,26 @@
+- `bot`
+    - `message`
+        - `message_id` INT,
+        - `user_id`    BIGINT,
+        - `group_id`   BIGINT,
+        - `message`    VARCHAR(20000)
+    - `event`
+        - `time`                    BIGINT
+        - `post_type`               VARCHAR(13)
+            - message/message_sent
+                - `message_type`    VARCHAR(8)
+                - `sub_type`        VARCHAR(10)
+                - `message_id`      INT
+                - `user_id`         BIGINT
+                - `group_id`        BIGINT
+                - `raw_message`     VARCHAR(20000)
+            - request
+                - `request_type`    VARCHAR(7)
+            - notice
+                - `notice_type`     VARCHAR(15)
+            - meta_event
+                - `meta_event_type` VARCHAR(11)
+    - `right`
+        - `user_id`    BIGINT
+        - `group_id`   BIGINT
+        - `right`      INT
