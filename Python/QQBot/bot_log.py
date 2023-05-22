@@ -1,6 +1,5 @@
 import logging
 import bot_api
-import bot_right
 
 
 class Log(object):
@@ -27,8 +26,7 @@ class Log(object):
 
     @staticmethod
     def __send_message_to_dev(message):
-        for dev in bot_right.Right().dev_list():
-            bot_api.SendPrivateMsg(dev, message)
+        bot_api.SendPrivateMsg(1397200108, message)
 
     def debug(self, msg: str):
         """
@@ -65,6 +63,3 @@ class Log(object):
         logging.error(msg)
         if Log.__level <= logging.ERROR:
             self.__send_message_to_dev(msg)
-
-
-log = Log('log')

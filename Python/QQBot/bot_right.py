@@ -4,7 +4,7 @@ bot_right.py
 有关权限的操作
 """
 import bot_db
-from bot_log import log
+from bot_log import Log
 from bot_config import config
 
 
@@ -17,6 +17,7 @@ class Right(object):
     __USER = 1
 
     def __init__(self):
+        self.log = Log('right')
         self.db = bot_db.DataBase(
             host=config['database']['host'],
             user=config['database']['user'],
@@ -113,7 +114,7 @@ class Right(object):
                 return 0
             return user_right[0][0]
         except Exception as err:
-            log.warning(str(err) + '，获取用户权限失败：user_id=' + str(user_id) + ' group_id=' + str(group_id))
+            self.log.warning(str(err) + '，获取用户权限失败：user_id=' + str(user_id) + ' group_id=' + str(group_id))
             return 0
 
     def set_right(self, right: int, user_id: int = 0, group_id: int = 0) -> bool:
@@ -140,8 +141,7 @@ class Right(object):
                     self.db.execute(f'UPDATE `right` SET `right`={right} WHERE group_id={group_id}')
             return True
         except Exception as err:
-            log.warning(str(err) + '，设置用户权限失败：right=' + str(right) + ' user_id=' + str(user_id) + ' group_id=' +
-                        str(group_id))
+            self.log.warning(f'{err}.设置用户权限失败：right={right} user_id={user_id} group_id={group_id}')
             return False
 
     def del_right(self, user_id: int = 0, group_id: int = 0) -> bool:
@@ -158,7 +158,7 @@ class Right(object):
                 self.db.execute(f'DELETE FROM `right` WHERE group_id={group_id}')
             return True
         except Exception as err:
-            log.warning(str(err) + '，删除用户权限失败：user_id=' + str(user_id) + ' group_id=' + str(group_id))
+            self.log.warning(str(err) + '，删除用户权限失败：user_id=' + str(user_id) + ' group_id=' + str(group_id))
             return False
 
     def dev_list(self) -> tuple:

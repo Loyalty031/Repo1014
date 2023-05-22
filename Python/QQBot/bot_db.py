@@ -1,5 +1,5 @@
 import pymysql
-from bot_log import log
+import bot_log
 from bot_config import config
 
 
@@ -13,6 +13,7 @@ class DataBase(object):
     """
 
     def __init__(self, host: str, user: str, password: str, db: str):
+        self.log = bot_log.Log('database')
         if config['database']['available']:
             self.db_connect = pymysql.connect(host=host, user=user, password=password, database=db)
             self.cursor = self.db_connect.cursor()
@@ -32,9 +33,9 @@ class DataBase(object):
             try:
                 self.cursor.execute(cmd)
                 self.db_connect.commit()
-                log.info('执行MySQL语句成功：' + cmd)
+                self.log.info('执行MySQL语句成功：' + cmd)
                 return self.cursor.fetchall()
             except pymysql.MySQLError as err:
                 self.db_connect.rollback()
-                log.warning(str(err) + '，执行MySQL语句失败：' + cmd)
+                self.log.warning(str(err) + '，执行MySQL语句失败：' + cmd)
                 return ()
