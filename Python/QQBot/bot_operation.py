@@ -472,16 +472,6 @@ class Drawer(Operation):
         return img_name
 
 
-class UnAuthorizedAccess(Operation):
-    """
-    未授权访问
-    """
-    help = ''
-
-    def __init__(self, api, user_id: int = 0, group_id: int = None):
-        super().__init__(api, '你没有足够的权限使用该功能', user_id, group_id)
-
-
 class SysInfo(Operation):
     """
     获取系统信息
@@ -497,7 +487,6 @@ class SysInfo(Operation):
         self.detail = detail
         super().__init__(api, self.__run(), user_id, group_id)
 
-    # noinspection PyTypeChecker
     def __run(self):
         """
         获取系统信息
@@ -514,9 +503,9 @@ class SysInfo(Operation):
                 rev += "CPU{}使用率: {}%\n".format(num, item)
         # 获取内存使用情况
         mem = psutil.virtual_memory()
-        mem_total = mem.total / 1024 / 1024
-        mem_percent = mem.percent
-        rev += "内存使用情况: {:.2f}MB / {:.2f}MB ({:.2f}%)\n".format(mem.used / 1024 / 1024, mem_total, mem_percent)
+        rev += "内存使用情况: {:.2f}MB / {:.2f}MB ({:.2f}%)\n".format(
+            mem.used / 1024 / 1024, mem.total / 1024 / 1024, mem.percent
+        )
         # 获取磁盘使用情况
         disk = psutil.disk_usage('/')
         disk_total = disk.total / 1024 / 1024
@@ -529,10 +518,16 @@ class SysInfo(Operation):
         # 遍历所有GPU，获取显卡信息
         for i in range(device_count):
             handle = nvidia_smi.nvmlDeviceGetHandleByIndex(i)
-            temp = nvidia_smi.nvmlDeviceGetTemperature(handle, nvidia_smi.NVML_TEMPERATURE_GPU)
+            temperature = nvidia_smi.nvmlDeviceGetTemperature(handle, nvidia_smi.NVML_TEMPERATURE_GPU)
+            nv_mem = nvidia_smi.nvmlDeviceGetMemoryInfo(handle)
             power = nvidia_smi.nvmlDeviceGetPowerUsage(handle)
-            rev += "GPU{}温度: {}°C\n".format(i, temp)
+            rate = nvidia_smi.nvmlDeviceGetUtilizationRates(handle).gpu
+            rev += "GPU{}温度: {}°C\n".format(i, temperature)
+            rev += "GPU{}显存: {:.2f}MB / {:.2f}MB ({:.2f}%)\n".format(
+                i, nv_mem.used / 1024 / 1024, nv_mem.total / 1024 / 1024, nv_mem.used / nv_mem.total * 100
+            )
             rev += "GPU{}功耗: {} W\n".format(i, power / 1000)
+            rev += "GPU{}使用率: {}%\n".format(i, rate)
         # 关闭NVIDIA SMI
         nvidia_smi.nvmlShutdown()
         return rev
@@ -587,4 +582,11 @@ class Translate(Operation):
             return str(err)
 
 
-print(Operation.get_all_help())
+class UnAuthorizedAccess(Operation):
+    """
+    未授权访问
+    """
+    help = ''
+
+    def __init__(self, api, user_id: int = 0, group_id: int = None):
+        super().__init__(api, '你没有足够的权限使用该功能', user_id, group_id)
