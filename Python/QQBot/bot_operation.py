@@ -17,6 +17,9 @@ import hashlib
 from PIL import Image
 from PIL import PngImagePlugin
 from datetime import datetime
+# MarkdownToPdf
+import markdown
+import pdfkit
 # SysInfo
 import nvidia_smi
 import psutil
@@ -42,7 +45,7 @@ class Operation(object):
     running = 0
 
     def __init__(self, api, rev, user_id: int, group_id: int = None):
-        self.__api = api
+        self.api = api
         self.rev = rev
         self.user_id = user_id
         self.group_id = group_id
@@ -472,6 +475,34 @@ class Drawer(Operation):
         return img_name
 
 
+class MarkdownToPdf(Operation):
+
+    def __init__(self, api, src: str, dest: str = None, encode: str = 'utf-8', user_id: int = 0, group_id: int = None):
+        self.src = src
+        if not os.path.exists(self.src):
+            raise FileNotFoundError('找不到指定的Markdown文件')
+        if os.path.splitext(self.src)[1] != '.md':
+            raise TypeError('源文件不是Markdown文件')
+        self.dest = dest if dest is not None else r'.\temp\output_' + os.path.basename(src)
+        if os.path.splitext(self.dest)[1] != '.pdf':
+            self.dest += '.pdf'
+        self.encode = encode
+        super().__init__(api, self.__run(), user_id, group_id)
+
+    def __run(self):
+        # 读取Markdown文件
+        with open(self.src, 'r', encoding=self.encode) as file:
+            md_content = file.read()
+        # 将HTML转换为PDF
+        pdfkit.from_string(
+            input=markdown.markdown(md_content),  # 将Markdown转换为HTML
+            output_path=self.dest,
+            options={'encoding': 'utf-8'},
+            configuration=pdfkit.configuration(wkhtmltopdf=r'.\wkhtmltopdf\bin\wkhtmltopdf.exe')
+        )
+        return self.dest
+
+
 class SysInfo(Operation):
     """
     获取系统信息
@@ -531,6 +562,14 @@ class SysInfo(Operation):
         # 关闭NVIDIA SMI
         nvidia_smi.nvmlShutdown()
         return rev
+
+
+class Todo(Operation):
+    help = """"""
+
+    def __init__(self, api, user_id: int, choice: str, group_id: int = None):
+        self.choice = choice
+        super().__init__(api, self.__run(), user_id, group_id)
 
 
 class Translate(Operation):
