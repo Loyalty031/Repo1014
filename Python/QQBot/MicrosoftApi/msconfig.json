@@ -1,5 +1,5 @@
 {
-  "authority": "https://login.microsoftonline.com/common",
-  "client_id": "5985883d-36a0-4acb-a8c1-09ee7a3e8cce",
+  "authority": "",
+  "client_id": "",
   "upload_limit_mb": 4
 }
