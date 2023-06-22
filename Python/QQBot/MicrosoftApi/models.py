@@ -1,3 +1,4 @@
+import traceback
 from enum import Enum
 from datetime import datetime, date
 from pydantic import BaseModel, Field, Required, HttpUrl
@@ -19,7 +20,7 @@ class Config(BaseModel):
     upload_limit_mb: float = Field(
         Required,
         title='上传限制',
-        description='单次上传限制，单位：MB',
+        description='单次上传限制，小于等于4，单位：MB',
         le=4
     )
 
@@ -42,11 +43,13 @@ class APIError(BaseModel):
     )
 
     @classmethod
-    def from_exception(cls, exception: Exception, info: list[str] = None) -> 'APIError':
+    def from_exception(cls, exception: Exception) -> 'APIError':
         return APIError(
             code=exception.__class__.__name__,
             message=str(exception),
-            innerError={'stack': ''.join(info)} if info else None
+            innerError={
+                'traceback': ''.join(traceback.format_tb(exception.__traceback__))
+            }
         )
 
 
